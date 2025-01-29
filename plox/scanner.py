@@ -6,7 +6,7 @@ from plox.tokens import TokenType, Token
 class Scanner:
     def __init__(self, source: str):
         self.__source = source
-        self.__tokens: List[Token] = []
+        self.__current_token: Token | None = None
         self.__start = 0
         self.__current = 0
         self.__line = 1
@@ -47,7 +47,7 @@ class Scanner:
                 token = self.__new_token(TokenType.EOF)
 
         self.__start = self.__current
-        self.__tokens.append(token)
+        self.__current_token = token
         return token
 
     def __advance(self) -> str | None:
@@ -76,7 +76,10 @@ class Scanner:
         return self
 
     def __next__(self) -> Token:
-        if len(self.__tokens) != 0 and self.__tokens[-1].type == TokenType.EOF:
+        if (
+            self.__current_token is not None
+            and self.__current_token.type == TokenType.EOF
+        ):
             raise StopIteration
         token = self.scan_token()
         return token
