@@ -49,6 +49,9 @@ class TokenType(Enum):
     STAR = auto()
     SLASH = auto()
 
+    # special tokens
+    INVALID = auto()
+
 
 @dataclass
 class Token:
