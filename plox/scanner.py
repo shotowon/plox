@@ -63,6 +63,7 @@ class Scanner:
         self,
         type: TokenType = TokenType.EOF,
         literal: Any = None,
+        meta: str = "",
     ) -> Token:
         lexeme: str = self.__source[self.__start : self.__current]
         return Token(
@@ -70,6 +71,8 @@ class Scanner:
             lexeme=lexeme,
             literal=literal,
             line=self.__line,
+        )
+            meta=meta,
         )
 
     def __iter__(self) -> Iterator[Token]:
