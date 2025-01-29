@@ -1,3 +1,5 @@
+from typing import Any
+from dataclasses import dataclass
 from enum import Enum, auto
 
 
@@ -45,3 +47,14 @@ class TokenType(Enum):
     PLUS = auto()
     SEMICOLON = auto()
     STAR = auto()
+
+
+@dataclass
+class Token:
+    type: TokenType
+    lexeme: str
+    literal: Any
+    line: int
+
+    def __str__(self) -> str:
+        return f"'{self.type}' '{self.lexeme}' '{self.literal}'"
