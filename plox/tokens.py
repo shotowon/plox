@@ -11,6 +11,8 @@ class TokenType(Enum):
     SUPER = auto()
     THIS = auto()
     FUN = auto()
+    VAR = auto()
+    PRINT = auto()
     RETURN = auto()
     IF = auto()
     ELSE = auto()
@@ -70,6 +72,8 @@ keywords = {
     "super": TokenType.SUPER,
     "this": TokenType.THIS,
     "fun": TokenType.FUN,
+    "var": TokenType.VAR,
+    "print": TokenType.PRINT,
     "return": TokenType.RETURN,
     "if": TokenType.IF,
     "else": TokenType.ELSE,
