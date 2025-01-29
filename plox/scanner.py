@@ -1,6 +1,6 @@
 from typing import Iterator, Any
 
-from plox.tokens import TokenType, Token
+from plox.tokens import TokenType, Token, keywords
 
 
 class Scanner:
@@ -57,6 +57,42 @@ class Scanner:
         self.__current += 1
         return self.__source[self.__current - 1]
 
+    def __identifier_or_keyword(self) -> Token:
+        while self.__peek().isalnum():
+            self.__advance()
+        name: str = self.__source[self.__start : self.__current]
+        token_type = keywords.get(name, TokenType.IDENTIFIER)
+        return self.__new_token(type=token_type)
+
+    def __number(self) -> Token:
+        while self.__peek().isdigit():
+            self.__advance()
+            if self.__peek() == "." and self.__peek(offset=1).isdigit():
+                self.__advance()
+
+        return self.__new_token(
+            TokenType.NUMBER,
+            float(self.__source[self.__start : self.__current]),
+        )
+
+    def __string(self) -> Token:
+        while self.__peek() != '"' and not self.__is_source_end():
+            if self.__peek() == "\n":
+                self.__line += 1
+            self.__advance()
+
+        if self.__is_source_end():
+            return self.__new_token(
+                TokenType.INVALID,
+                meta="unterminated string.",
+            )
+
+        self.__advance()
+        value: str = self.__source[self.__start + 1 : self.__current - 1]
+        return self.__new_token(
+            TokenType.STRING,
+            literal=value,
+        )
 
     def __match(self, next: str) -> bool:
         if self.__peek() != next and next != "\0":
