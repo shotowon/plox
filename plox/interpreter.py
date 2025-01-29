@@ -50,8 +50,8 @@ class Interpreter:
 
     def __run(self, source: str) -> None:
         scanner: Scanner = Scanner(source=source)
-        tokens = [token for token in scanner]
-        print(tokens)
+        for token in scanner:
+            print(token)
 
     def __error(self, line: int, message: str) -> None:
         self.__report(line=line, where="", message=message)
