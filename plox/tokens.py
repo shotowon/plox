@@ -59,6 +59,7 @@ class Token:
     lexeme: str
     literal: Any
     line: int
+    meta: str = ""
 
     def __str__(self) -> str:
         return f"'{self.type}' '{self.lexeme}' '{self.literal}'"
