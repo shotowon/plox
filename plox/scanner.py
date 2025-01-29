@@ -34,6 +34,28 @@ class Scanner:
                 token = self.__new_token(TokenType.COMMA)
             case ".":
                 token = self.__new_token(TokenType.DOT)
+            case "!":
+                token = self.__new_token(
+                    TokenType.BANG_EQ if self.__match("=") else TokenType.BANG
+                )
+            case "=":
+                token = self.__new_token(
+                    TokenType.EQ_EQ if self.__match("=") else TokenType.EQ
+                )
+            case ">":
+                token = self.__new_token(
+                    TokenType.GTE if self.__match("=") else TokenType.GT
+                )
+            case "<":
+                token = self.__new_token(
+                    TokenType.LTE if self.__match("=") else TokenType.LT
+                )
+            case "/":
+                if self.__match("/"):
+                    while self.__peek() != "\n" and not self.__is_source_end():
+                        self.__advance()
+                else:
+                    token = self.__new_token(TokenType.SLASH)
             case "+":
                 token = self.__new_token(TokenType.PLUS)
             case "-":
@@ -46,6 +68,21 @@ class Scanner:
                 token = self.__new_token(TokenType.SEMICOLON)
             case "\0":
                 token = self.__new_token(TokenType.EOF)
+            case '"':
+                token = self.__string()
+            case _:
+                if char.isdigit():
+                    token = self.__number()
+                elif char.isalpha():
+                    token = self.__identifier_or_keyword()
+                else:
+                    while (
+                        not self.__peek().isspace() and self.__peek() != "\0"
+                    ):
+                        self.__advance()
+                    token = self.__new_token(
+                        TokenType.INVALID, meta="undefined token"
+                    )
 
         self.__start = self.__current
         self.__current_token = token
