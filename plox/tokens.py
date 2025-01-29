@@ -47,6 +47,7 @@ class TokenType(Enum):
     PLUS = auto()
     SEMICOLON = auto()
     STAR = auto()
+    SLASH = auto()
 
 
 @dataclass
