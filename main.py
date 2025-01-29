@@ -1,7 +1,7 @@
 from pathlib import Path
 import sys
 
-from interpreter import Interpreter
+from plox.interpreter import Interpreter
 
 
 def main():
