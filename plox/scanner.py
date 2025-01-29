@@ -14,7 +14,9 @@ class Scanner:
     def scan_token(self) -> Token:
         token: Token = self.__new_token()
         char: str | None = self.__advance()
-        while char == " ":
+        while char is not None and char.isspace():
+            if char == "\n":
+                self.__line += 1
             self.__start = self.__current
             char = self.__advance()
 
