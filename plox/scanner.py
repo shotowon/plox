@@ -1,6 +1,6 @@
 from typing import List, Iterator, Any
 
-from tokens import Token, TokenType
+from plox.tokens import TokenType, Token
 
 
 class Scanner:

@@ -1,8 +1,7 @@
 from typing import List
 from pathlib import Path
-import sys
 
-from scanner import Scanner
+from plox.scanner import Scanner
 
 
 class Interpreter:
