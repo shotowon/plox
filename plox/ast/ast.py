@@ -9,6 +9,7 @@ T = TypeVar("T")
 
 
 class Expr(ABC):
+    @abstractmethod
     def accept(self, visitor: "ExprVisitor[T]") -> T:
         pass
 
@@ -53,17 +54,17 @@ R = TypeVar("R")
 
 class ExprVisitor(Generic[R], ABC):
     @abstractmethod
-    def visitBinaryExpr(expr: Binary) -> R:
+    def visitBinaryExpr(self, expr: Binary) -> R:
         pass
 
     @abstractmethod
-    def visitGroupingExpr(expr: Grouping) -> R:
+    def visitGroupingExpr(self, expr: Grouping) -> R:
         pass
 
     @abstractmethod
-    def visitLiteralExpr(expr: Literal) -> R:
+    def visitLiteralExpr(self, expr: Literal) -> R:
         pass
 
     @abstractmethod
-    def visitUnaryExpr(expr: Unary) -> R:
+    def visitUnaryExpr(self, expr: Unary) -> R:
         pass
