@@ -2,8 +2,8 @@ from typing import List
 
 import pytest
 
-from plox.scanner import Scanner
-from plox.tokens import TokenType, Token
+from plox.frontend.scanner import Scanner
+from plox.frontend.tokens import TokenType, Token
 
 
 class TestScanner:

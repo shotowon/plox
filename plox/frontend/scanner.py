@@ -1,6 +1,6 @@
 from typing import Iterator, Any
 
-from plox.tokens import TokenType, Token, keywords
+from plox.frontend.tokens import TokenType, Token, keywords
 
 
 class Scanner:

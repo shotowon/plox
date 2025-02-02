@@ -46,9 +46,9 @@ def define_ast(
 
     buf = io.StringIO()
     buf.write("from abc import ABC, abstractmethod\n")
-    buf.write("from typing import Any, Generic, TypeVar\n")
+    buf.write("from typing import Any\n")
     buf.write("from dataclasses import dataclass\n\n")
-    buf.write("from plox.tokens import Token\n\n\n")
+    buf.write("from plox.frontend.tokens import Token\n\n\n")
 
     buf.write(f"class {basename}(ABC):\n")
     buf.write(f"    @abstractmethod\n")

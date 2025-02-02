@@ -1,7 +1,8 @@
 from typing import List
 from pathlib import Path
 
-from plox.scanner import Scanner
+from plox.frontend.scanner import Scanner
+from plox.frontend.tokens import TokenType
 
 
 class Interpreter:
@@ -23,7 +24,6 @@ class Interpreter:
                 if len(self.errors) != 0:
                     for err in self.errors:
                         print(err)
-                        exit(65)
             except EOFError:
                 print("\nEnd of input. Exiting...")
                 break
@@ -40,7 +40,7 @@ class Interpreter:
             if len(self.errors) != 0:
                 for err in self.errors:
                     print(err)
-                    exit(65)
+                exit(65)
         except FileNotFoundError as e:
             print(f"file: {filepath.name} not found: {e}")
         except IOError as e:
@@ -51,6 +51,11 @@ class Interpreter:
     def __run(self, source: str) -> None:
         scanner: Scanner = Scanner(source=source)
         for token in scanner:
+            if token.type == TokenType.INVALID:
+                self.errors.append(
+                    f"{token.line}: invalid token: '{token.lexeme}' error: {token.meta}"
+                )
+                continue
             print(token)
 
     def __error(self, line: int, message: str) -> None:
