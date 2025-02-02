@@ -52,8 +52,9 @@ def define_ast(
 
     buf.write(f'T = TypeVar("T")\n\n')
     buf.write(f"class {basename}(ABC):\n")
-    buf.write(f"  def accept(self, visitor: '{basename}Visitor[T]') -> T:\n")
-    buf.write(f"      pass\n\n")
+    buf.write(f"    @abstractmethod\n")
+    buf.write(f"    def accept(self, visitor: '{basename}Visitor[T]') -> T:\n")
+    buf.write(f"        pass\n\n")
 
     expr_defs = [list(map(lambda l: l.strip(), t.split(":"))) for t in types]
 
@@ -100,7 +101,7 @@ def define_visitor(
         buf.write(f"    @abstractmethod\n")
         buf.write(f"    def ")
         buf.write(f"visit{classname}{basename}")
-        buf.write(f"({basename.lower()}: {classname}) -> R:\n")
+        buf.write(f"(self, {basename.lower()}: {classname}) -> R:\n")
         buf.write(f"        pass\n\n")
 
 
