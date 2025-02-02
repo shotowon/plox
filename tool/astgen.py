@@ -50,10 +50,11 @@ def define_ast(
     buf.write("from dataclasses import dataclass\n\n")
     buf.write("from plox.tokens import Token\n\n\n")
 
-    buf.write(f'T = TypeVar("T")\n\n')
     buf.write(f"class {basename}(ABC):\n")
     buf.write(f"    @abstractmethod\n")
-    buf.write(f"    def accept(self, visitor: '{basename}Visitor[T]') -> T:\n")
+    buf.write(
+        f"    def accept[T](self, visitor: '{basename}Visitor[T]') -> T:\n"
+    )
     buf.write(f"        pass\n\n")
 
     expr_defs = [list(map(lambda l: l.strip(), t.split(":"))) for t in types]
@@ -82,9 +83,14 @@ def define_type(
     buf.write(f"class {classname}({basename}):\n")
     for field in map(lambda s: s.strip(), fields.split(",")):
         field_type, field_name = field.split()
-        buf.write(f"    {field_name}: {field_type}\n")
+        buf.write(f"    {field_name}: {field_type}")
+        if field_type == "Any":
+            buf.write(" = None")
+        buf.write("\n")
 
-    buf.write(f"    def accept(self, visitor: '{basename}Visitor[T]') -> T:\n")
+    buf.write(
+        f"    def accept[T](self, visitor: '{basename}Visitor[T]') -> T:\n"
+    )
     buf.write(f"        return visitor.visit{classname}{basename}(self)\n\n")
     buf.write("\n\n")
 
@@ -94,8 +100,7 @@ def define_visitor(
     basename: str,
     classnames: List[str],
 ) -> None:
-    buf.write(f'R = TypeVar("R")\n\n')
-    buf.write(f"class {basename}Visitor(Generic[R], ABC):\n")
+    buf.write(f"class {basename}Visitor[R](ABC):\n")
 
     for classname in classnames:
         buf.write(f"    @abstractmethod\n")

@@ -5,12 +5,9 @@ from dataclasses import dataclass
 from plox.tokens import Token
 
 
-T = TypeVar("T")
-
-
 class Expr(ABC):
     @abstractmethod
-    def accept(self, visitor: "ExprVisitor[T]") -> T:
+    def accept[T](self, visitor: "ExprVisitor[T]") -> T:
         pass
 
 
@@ -20,7 +17,7 @@ class Binary(Expr):
     operator: Token
     right: Expr
 
-    def accept(self, visitor: "ExprVisitor[T]") -> T:
+    def accept[T](self, visitor: "ExprVisitor[T]") -> T:
         return visitor.visitBinaryExpr(self)
 
 
@@ -28,15 +25,15 @@ class Binary(Expr):
 class Grouping(Expr):
     expression: Expr
 
-    def accept(self, visitor: "ExprVisitor[T]") -> T:
+    def accept[T](self, visitor: "ExprVisitor[T]") -> T:
         return visitor.visitGroupingExpr(self)
 
 
 @dataclass
 class Literal(Expr):
-    value: Any
+    value: Any = None
 
-    def accept(self, visitor: "ExprVisitor[T]") -> T:
+    def accept[T](self, visitor: "ExprVisitor[T]") -> T:
         return visitor.visitLiteralExpr(self)
 
 
@@ -45,14 +42,11 @@ class Unary(Expr):
     operator: Token
     right: Expr
 
-    def accept(self, visitor: "ExprVisitor[T]") -> T:
+    def accept[T](self, visitor: "ExprVisitor[T]") -> T:
         return visitor.visitUnaryExpr(self)
 
 
-R = TypeVar("R")
-
-
-class ExprVisitor(Generic[R], ABC):
+class ExprVisitor[R](ABC):
     @abstractmethod
     def visitBinaryExpr(self, expr: Binary) -> R:
         pass
