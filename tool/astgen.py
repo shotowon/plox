@@ -12,7 +12,7 @@ import black
 
 def main():
     try:
-        output_dir = Path("plox/ast")
+        output_dir = Path("plox/frontend")
         filename = "ast.py"
         basename = "Expr"
 

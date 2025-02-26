@@ -1,6 +1,13 @@
 import io
 
-from plox.ast.ast import Binary, Expr, ExprVisitor, Grouping, Literal, Unary
+from plox.frontend.ast import (
+    Binary,
+    Expr,
+    ExprVisitor,
+    Grouping,
+    Literal,
+    Unary,
+)
 
 
 class PPrintVisitor(ExprVisitor[str]):
