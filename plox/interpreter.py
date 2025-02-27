@@ -1,7 +1,9 @@
 from pathlib import Path
 
+from plox.backend.visitors.pprint import PPrintVisitor
+from plox.frontend.parser import ParseException, Parser
 from plox.frontend.scanner import Scanner
-from plox.frontend.tokens import TokenType
+from plox.frontend.tokens import Token, TokenType
 
 
 class Interpreter:
@@ -57,8 +59,19 @@ class Interpreter:
                 continue
             print(token)
 
-    def __error(self, line: int, message: str) -> None:
-        self.__report(line=line, where="", message=message)
+    def __error(self, token: Token, message: str) -> None:
+        if token.type == TokenType.EOF:
+            return self.__report(
+                line=token.line,
+                where="at end",
+                message=message,
+            )
+
+        return self.__report(
+            line=token.line,
+            where=f"at '{token.lexeme}",
+            message=message,
+        )
 
     def __report(self, line: int, where: str, message: str) -> None:
-        self.errors.append(f"[line {line}] Error{where}: {message}")
+        self.errors.append(f"[line {line}] Error {where}: {message}")
