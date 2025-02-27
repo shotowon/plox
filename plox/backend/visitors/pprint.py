@@ -11,6 +11,9 @@ from plox.frontend.ast import (
 
 
 class PPrintVisitor(ExprVisitor[str]):
+    def print(self, expr: Expr) -> None:
+        print(expr.accept(visitor=self))
+
     def visitBinaryExpr(self, expr: Binary) -> str:
         return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)
 
