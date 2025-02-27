@@ -94,6 +94,28 @@ class Parser:
 
         raise self.__err(message=message)
 
+    def __sync(self) -> None:
+        self.__advance()
+
+        while not self.__is_at_end():
+            if (
+                self.__previous().type == TT.SEMICOLON
+                or self.__peek().type
+                in [
+                    TT.CLASS,
+                    TT.FUN,
+                    TT.VAR,
+                    TT.FOR,
+                    TT.IF,
+                    TT.WHILE,
+                    TT.PRINT,
+                    TT.RETURN,
+                ]
+            ):
+                return
+
+            self.__advance()
+
     def __err(self, message: str) -> ParseException:
         return ParseException(token=self.__peek(), message=message)
 
