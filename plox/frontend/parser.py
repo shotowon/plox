@@ -3,9 +3,13 @@ from plox.frontend.ast import Expr, Grouping, Literal, Unary, Binary
 
 
 class ParseException(Exception):
-    def __init__(self, message: str) -> None:
+    def __init__(self, token: Token, message: str) -> None:
+        self.token: Token = token
         self.message: str = message
-        super().__init__(message)
+        super().__init__(str(self))
+
+    def __str__(self) -> str:
+        return f"{self.token}: parse error - {self.message}"
 
 
 class Parser:
@@ -91,7 +95,7 @@ class Parser:
         raise self.__err(message=message)
 
     def __err(self, message: str) -> ParseException:
-        return ParseException(f"{self.__peek()}: {message}")
+        return ParseException(token=self.__peek(), message=message)
 
     def __advance(self) -> Token:
         if not self.__is_at_end():
