@@ -27,6 +27,7 @@ class TokenType(Enum):
     IDENTIFIER = auto()
     STRING = auto()
     NUMBER = auto()
+    NIL = auto()
 
     # one or two char tokens
     BANG = auto()
@@ -83,4 +84,5 @@ keywords = {
     "or": TokenType.OR,
     "true": TokenType.TRUE,
     "false": TokenType.FALSE,
+    "nil": TokenType.NIL,
 }
