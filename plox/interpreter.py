@@ -45,7 +45,7 @@ class Interpreter:
         except FileNotFoundError as e:
             print(f"file: {filepath.name} not found: {e}")
         except IOError as e:
-            print(f"I/O error occured: {e}")
+            print(f"I/O error: {e}")
         except Exception as e:
             print(f"unexpected error occured: {e}")
 
