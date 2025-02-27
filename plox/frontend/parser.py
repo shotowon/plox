@@ -17,6 +17,9 @@ class Parser:
         self.__tokens = tokens
         self.__current = 0
 
+    def parse(self) -> Expr:
+        return self.__expr()
+
     def __expr(self) -> Expr:
         return self.__eq()
 
