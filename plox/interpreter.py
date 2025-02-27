@@ -51,13 +51,25 @@ class Interpreter:
 
     def __run(self, source: str) -> None:
         scanner: Scanner = Scanner(source=source)
+        tokens: list[Token] = []
         for token in scanner:
             if token.type == TokenType.INVALID:
-                self.errors.append(
-                    f"{token.line}: invalid token: '{token.lexeme}' error: {token.meta}"
-                )
+                self.__error(token, token.meta)
                 continue
-            print(token)
+            tokens.append(token)
+
+        parser: Parser = Parser(tokens=tokens)
+
+        try:
+            expr = parser.parse()
+        except ParseException as e:
+            self.__error(token=e.token, message=e.message)
+            for err in self.errors:
+                print(err)
+            return
+
+        pprinter: PPrintVisitor = PPrintVisitor()
+        pprinter.print(expr=expr)
 
     def __error(self, token: Token, message: str) -> None:
         if token.type == TokenType.EOF:
