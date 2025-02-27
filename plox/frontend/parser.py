@@ -13,6 +13,77 @@ class Parser:
         self.__tokens = tokens
         self.__current = 0
 
+    def __expr(self) -> Expr:
+        return self.__eq()
+
+    def __eq(self) -> Expr:
+        expr: Expr = self.__comparison()
+
+        while self.__match(TT.BANG_EQ, TT.EQ_EQ):
+            op: Token = self.__previous()
+            right: Expr = self.__comparison()
+            expr = Binary(left=expr, operator=op, right=right)
+
+        return expr
+
+    def __comparison(self) -> Expr:
+        expr: Expr = self.__term()
+
+        while self.__match(
+            TT.GT,
+            TT.GTE,
+            TT.LT,
+            TT.LTE,
+        ):
+            op: Token = self.__previous()
+            right: Expr = self.__term()
+            expr = Binary(expr, op, right)
+
+        return expr
+
+    def __term(self) -> Expr:
+        expr: Expr = self.__factor()
+
+        while self.__match(TT.PLUS, TT.MINUS):
+            op: Token = self.__previous()
+            right: Expr = self.__factor()
+            expr = Binary(expr, op, right)
+
+        return expr
+
+    def __factor(self) -> Expr:
+        expr: Expr = self.__unary()
+
+        while self.__match(TT.STAR, TT.SLASH):
+            op: Token = self.__previous()
+            right: Expr = self.__unary()
+            expr = Binary(expr, op, right)
+        return expr
+
+    def __unary(self) -> Expr:
+        if self.__match(TT.BANG, TT.MINUS):
+            op: Token = self.__previous()
+            right: Expr = self.__unary()
+            return Unary(op, right)
+        return self.__primary()
+
+    def __primary(self) -> Expr:
+        if self.__match(TT.FALSE):
+            return Literal(False)
+        if self.__match(TT.TRUE):
+            return Literal(True)
+        if self.__match(TT.NIL):
+            return Literal(None)
+        if self.__match(TT.NUMBER, TT.STRING):
+            return Literal(self.__previous().literal)
+
+        if self.__match(TT.LPAREN):
+            expr: Expr = self.__expr()
+            self.__consume(TT.RPAREN, "Expect ')' after expression.")
+            return Grouping(expr)
+
+        raise self.__err(message="Expect expression.")
+
     def __consume(self, token_type: TT, message: str) -> Token:
         if self.__check(token_type=token_type):
             return self.__advance()
