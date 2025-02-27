@@ -1,4 +1,3 @@
-from typing import List
 from pathlib import Path
 
 from plox.frontend.scanner import Scanner
@@ -7,7 +6,7 @@ from plox.frontend.tokens import TokenType
 
 class Interpreter:
     def __init__(self):
-        self.errors: List[str] = []
+        self.errors: list[str] = []
 
     def run_interactively(self) -> None:
         print("Enter 'quit' to exit. ^.^")

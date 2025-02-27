@@ -2,10 +2,8 @@
 Script that generates AST classes based on definition provided by user
 """
 
-import sys
 import io
 from pathlib import Path
-from typing import List
 
 import black
 
@@ -35,7 +33,7 @@ def define_ast(
     output_dir: Path,
     filename: str,
     basename: str,
-    types: List[str],
+    types: list[str],
 ):
     if not output_dir.exists():
         output_dir.mkdir()
@@ -98,7 +96,7 @@ def define_type(
 def define_visitor(
     buf: io.TextIOBase,
     basename: str,
-    classnames: List[str],
+    classnames: list[str],
 ) -> None:
     buf.write(f"class {basename}Visitor[R](ABC):\n")
 
