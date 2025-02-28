@@ -1,6 +1,8 @@
 from pathlib import Path
+from typing import Any
+from sys import stderr
 
-from plox.backend.visitors.pprint import PPrintVisitor
+from plox.backend.visitors.eval import Eval, RuntimeException
 from plox.frontend.parser import ParseException, Parser
 from plox.frontend.scanner import Scanner
 from plox.frontend.tokens import Token, TokenType
@@ -9,6 +11,7 @@ from plox.frontend.tokens import Token, TokenType
 class Interpreter:
     def __init__(self):
         self.errors: list[str] = []
+        self.had_errors: bool = False
 
     def run_interactively(self) -> None:
         print("Enter 'quit' to exit. ^.^")
@@ -24,13 +27,16 @@ class Interpreter:
 
                 if len(self.errors) != 0:
                     for err in self.errors:
-                        print(err)
+                        self.had_errors = True
+                        stderr.write(err)
             except EOFError:
                 print("\nEnd of input. Exiting...")
                 break
             except KeyboardInterrupt:
                 print("\nInput interrupted. Exiting...")
                 break
+        if self.had_errors:
+            exit(65)
 
     def run_file(self, filepath: Path) -> None:
         try:
@@ -40,14 +46,14 @@ class Interpreter:
             self.__run(text)
             if len(self.errors) != 0:
                 for err in self.errors:
-                    print(err)
+                    stderr.write(err)
                 exit(65)
         except FileNotFoundError as e:
-            print(f"file: {filepath.name} not found: {e}")
+            stderr.write(f"file: {filepath.name} not found: {e}")
         except IOError as e:
-            print(f"I/O error: {e}")
+            stderr.write(f"I/O error: {e}")
         except Exception as e:
-            print(f"unexpected error occured: {e}")
+            stderr.write(f"unexpected error occured: {e}")
 
     def __run(self, source: str) -> None:
         scanner: Scanner = Scanner(source=source)
@@ -59,17 +65,24 @@ class Interpreter:
             tokens.append(token)
 
         parser: Parser = Parser(tokens=tokens)
-
         try:
             expr = parser.parse()
         except ParseException as e:
             self.__error(token=e.token, message=e.message)
             for err in self.errors:
-                print(err)
+                stderr.write(err)
             return
 
-        pprinter: PPrintVisitor = PPrintVisitor()
-        pprinter.print(expr=expr)
+        eval: Eval = Eval()
+        try:
+            value: Any = eval.eval(expr)
+            print(eval.stringify(value))
+        except RuntimeException as e:
+            self.__report(
+                line=e.token.line,
+                where=f"at '{e.token.lexeme}'",
+                message=e.message,
+            )
 
     def __error(self, token: Token, message: str) -> None:
         if token.type == TokenType.EOF:
@@ -81,9 +94,9 @@ class Interpreter:
 
         return self.__report(
             line=token.line,
-            where=f"at '{token.lexeme}",
+            where=f"at '{token.lexeme}'",
             message=message,
         )
 
     def __report(self, line: int, where: str, message: str) -> None:
-        self.errors.append(f"[line {line}] Error {where}: {message}")
+        self.errors.append(f"[line {line}] Error {where}: {message}\n")
