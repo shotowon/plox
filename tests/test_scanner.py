@@ -1,7 +1,5 @@
 from typing import List
 
-import pytest
-
 from plox.frontend.scanner import Scanner
 from plox.frontend.tokens import TokenType, Token
 
