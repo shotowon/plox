@@ -30,6 +30,7 @@ def main():
             buf,
             "Expr",
             [
+                "Assign   : Token name, Expr value",
                 "Binary   : Expr left, Token operator, Expr right",
                 "Grouping : Expr expression",
                 "Unary    : Token operator, Expr right",

@@ -12,6 +12,15 @@ class Expr(ABC):
 
 
 @dataclass
+class AssignExpr(Expr):
+    name: Token
+    value: Expr
+
+    def accept[T](self, visitor: "ExprVisitor[T]") -> T:
+        return visitor.visitAssignExpr(self)
+
+
+@dataclass
 class BinaryExpr(Expr):
     left: Expr
     operator: Token
@@ -55,6 +64,10 @@ class VariableExpr(Expr):
 
 
 class ExprVisitor[R](ABC):
+    @abstractmethod
+    def visitAssignExpr(self, expr: AssignExpr) -> R:
+        pass
+
     @abstractmethod
     def visitBinaryExpr(self, expr: BinaryExpr) -> R:
         pass
