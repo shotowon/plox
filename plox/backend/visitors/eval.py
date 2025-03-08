@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from plox.frontend.tokens import TokenType as TT, Token
 from plox.frontend.ast import (
@@ -25,19 +25,29 @@ class RuntimeException(Exception):
 
 
 class Context:
-    def __init__(self, values: dict[str, Any] = {}) -> None:
+    def __init__(
+        self,
+        values: dict[str, Any] = {},
+        parent: Optional["Context"] = None,
+    ) -> None:
+        self.parent = parent
         self.values = values
 
     def get(self, name: Token) -> Any:
-        if name.lexeme not in self.values:
-            raise RuntimeException(
-                name, f"Undefined variable '{name.lexeme}'."
-            )
-        return self.values[name.lexeme]
+        if name.lexeme in self.values:
+            return self.values[name.lexeme]
+
+        if self.parent is not None:
+            return self.parent.get(name)
+        raise RuntimeException(name, f"Undefined variable '{name.lexeme}'.")
 
     def assign(self, name: Token, value: Any) -> None:
         if name.lexeme in self.values:
             self.values[name.lexeme] = value
+            return
+
+        if self.parent is not None:
+            self.assign(name, value)
             return
 
         raise RuntimeException(name, f"Undefined variable '{name.lexeme}'.")
