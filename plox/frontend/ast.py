@@ -12,7 +12,7 @@ class Expr(ABC):
 
 
 @dataclass
-class Binary(Expr):
+class BinaryExpr(Expr):
     left: Expr
     operator: Token
     right: Expr
@@ -22,7 +22,7 @@ class Binary(Expr):
 
 
 @dataclass
-class Grouping(Expr):
+class GroupingExpr(Expr):
     expression: Expr
 
     def accept[T](self, visitor: "ExprVisitor[T]") -> T:
@@ -30,7 +30,7 @@ class Grouping(Expr):
 
 
 @dataclass
-class Literal(Expr):
+class LiteralExpr(Expr):
     value: Any = None
 
     def accept[T](self, visitor: "ExprVisitor[T]") -> T:
@@ -38,7 +38,7 @@ class Literal(Expr):
 
 
 @dataclass
-class Unary(Expr):
+class UnaryExpr(Expr):
     operator: Token
     right: Expr
 
@@ -48,17 +48,37 @@ class Unary(Expr):
 
 class ExprVisitor[R](ABC):
     @abstractmethod
-    def visitBinaryExpr(self, expr: Binary) -> R:
+    def visitBinaryExpr(self, expr: BinaryExpr) -> R:
         pass
 
     @abstractmethod
-    def visitGroupingExpr(self, expr: Grouping) -> R:
+    def visitGroupingExpr(self, expr: GroupingExpr) -> R:
         pass
 
     @abstractmethod
-    def visitLiteralExpr(self, expr: Literal) -> R:
+    def visitLiteralExpr(self, expr: LiteralExpr) -> R:
         pass
 
     @abstractmethod
-    def visitUnaryExpr(self, expr: Unary) -> R:
+    def visitUnaryExpr(self, expr: UnaryExpr) -> R:
+        pass
+
+
+class Stmt(ABC):
+    @abstractmethod
+    def accept[T](self, visitor: "StmtVisitor[T]") -> T:
+        pass
+
+
+@dataclass
+class ExpressionStmt(Stmt):
+    expression: Expr
+
+    def accept[T](self, visitor: "StmtVisitor[T]") -> T:
+        return visitor.visitExpressionStmt(self)
+
+
+class StmtVisitor[R](ABC):
+    @abstractmethod
+    def visitExpressionStmt(self, stmt: ExpressionStmt) -> R:
         pass
