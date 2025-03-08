@@ -1,15 +1,16 @@
 from plox.frontend.tokens import Token, TokenType as TT
 from plox.frontend.ast import (
     Expr,
+    AssignExpr,
     GroupingExpr,
     LiteralExpr,
     UnaryExpr,
     BinaryExpr,
+    VariableExpr,
     Stmt,
     ExpressionStmt,
     PrintStmt,
     VarStmt,
-    VariableExpr,
 )
 
 
@@ -72,7 +73,20 @@ class Parser:
         return ExpressionStmt(expr)
 
     def __expr(self) -> Expr:
-        return self.__eq()
+        return self.__assign()
+
+    def __assign(self) -> Expr:
+        expr: Expr = self.__eq()
+
+        if self.__match(TT.EQ):
+            value: Expr = self.__assign()
+
+            if isinstance(expr, VariableExpr):
+                name: Token = expr.name
+                return AssignExpr(name, value)
+
+            self.__err("Invalid assignment target.")
+        return expr
 
     def __eq(self) -> Expr:
         expr: Expr = self.__comparison()
