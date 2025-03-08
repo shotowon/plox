@@ -1,8 +1,7 @@
 from pathlib import Path
-from typing import Any
 from sys import stderr
 
-from plox.backend.visitors.eval import Eval, RuntimeException
+from plox.backend.visitors.eval import Eval, RuntimeException, Context
 from plox.frontend.parser import ParseException, Parser
 from plox.frontend.scanner import Scanner
 from plox.frontend.tokens import Token, TokenType
@@ -11,6 +10,7 @@ from plox.frontend.tokens import Token, TokenType
 class Interpreter:
     def __init__(self):
         self.errors: list[str] = []
+        self.ctx = Context()
         self.had_errors: bool = False
 
     def run_interactively(self) -> None:
@@ -73,7 +73,7 @@ class Interpreter:
                 stderr.write(err)
             return
 
-        eval: Eval = Eval()
+        eval: Eval = Eval(self.ctx)
         try:
             for stmt in stmts:
                 eval.execute(stmt=stmt)

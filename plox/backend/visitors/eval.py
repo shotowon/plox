@@ -7,9 +7,11 @@ from plox.frontend.ast import (
     BinaryExpr,
     LiteralExpr,
     UnaryExpr,
+    VariableExpr,
     Stmt,
     ExpressionStmt,
     PrintStmt,
+    VarStmt,
     ExprVisitor,
     StmtVisitor,
 )
@@ -21,7 +23,25 @@ class RuntimeException(Exception):
         self.message = message
 
 
+class Context:
+    def __init__(self, values: dict[str, Any] = {}) -> None:
+        self.values = values
+
+    def get(self, name: Token) -> Any:
+        if name.lexeme not in self.values:
+            raise RuntimeException(
+                name, f"Undefined variable '{name.lexeme}'."
+            )
+        return self.values[name.lexeme]
+
+    def define(self, name: str, value: Any) -> None:
+        self.values[name] = value
+
+
 class Eval(ExprVisitor[Any], StmtVisitor[None]):
+    def __init__(self, ctx: Context = Context()) -> None:
+        self.ctx = ctx
+
     def execute(self, stmt: Stmt) -> None:
         stmt.accept(self)
 
@@ -106,6 +126,9 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
 
         return None
 
+    def visitVariableExpr(self, expr: VariableExpr) -> Any:
+        return self.ctx.get(expr.name)
+
     # StmtVisitor
 
     def visitExpressionStmt(self, stmt: ExpressionStmt) -> None:
@@ -115,6 +138,14 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
     def visitPrintStmt(self, stmt: PrintStmt) -> None:
         value: Any = self.eval(stmt.expression)
         print(self.stringify(value))
+        return None
+
+    def visitVarStmt(self, stmt: VarStmt) -> None:
+        value: Any = None
+        if stmt.initializer is not None:
+            value = self.eval(stmt.initializer)
+
+        self.ctx.define(stmt.name.lexeme, value)
         return None
 
     def __bool_from_any(self, value: Any) -> bool:
