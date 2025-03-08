@@ -1,5 +1,11 @@
 from plox.frontend.tokens import Token, TokenType as TT
-from plox.frontend.ast import Expr, Grouping, Literal, Unary, Binary
+from plox.frontend.ast import (
+    Expr,
+    GroupingExpr,
+    LiteralExpr,
+    UnaryExpr,
+    BinaryExpr,
+)
 
 
 class ParseException(Exception):
@@ -29,7 +35,7 @@ class Parser:
         while self.__match(TT.BANG_EQ, TT.EQ_EQ):
             op: Token = self.__previous()
             right: Expr = self.__comparison()
-            expr = Binary(left=expr, operator=op, right=right)
+            expr = BinaryExpr(left=expr, operator=op, right=right)
 
         return expr
 
@@ -44,7 +50,7 @@ class Parser:
         ):
             op: Token = self.__previous()
             right: Expr = self.__term()
-            expr = Binary(expr, op, right)
+            expr = BinaryExpr(expr, op, right)
 
         return expr
 
@@ -54,7 +60,7 @@ class Parser:
         while self.__match(TT.PLUS, TT.MINUS):
             op: Token = self.__previous()
             right: Expr = self.__factor()
-            expr = Binary(expr, op, right)
+            expr = BinaryExpr(expr, op, right)
 
         return expr
 
@@ -64,30 +70,30 @@ class Parser:
         while self.__match(TT.STAR, TT.SLASH):
             op: Token = self.__previous()
             right: Expr = self.__unary()
-            expr = Binary(expr, op, right)
+            expr = BinaryExpr(expr, op, right)
         return expr
 
     def __unary(self) -> Expr:
         if self.__match(TT.BANG, TT.MINUS):
             op: Token = self.__previous()
             right: Expr = self.__unary()
-            return Unary(op, right)
+            return UnaryExpr(op, right)
         return self.__primary()
 
     def __primary(self) -> Expr:
         if self.__match(TT.FALSE):
-            return Literal(False)
+            return LiteralExpr(False)
         if self.__match(TT.TRUE):
-            return Literal(True)
+            return LiteralExpr(True)
         if self.__match(TT.NIL):
-            return Literal(None)
+            return LiteralExpr(None)
         if self.__match(TT.NUMBER, TT.STRING):
-            return Literal(self.__previous().literal)
+            return LiteralExpr(self.__previous().literal)
 
         if self.__match(TT.LPAREN):
             expr: Expr = self.__expr()
             self.__consume(TT.RPAREN, "Expect ')' after expression.")
-            return Grouping(expr)
+            return GroupingExpr(expr)
 
         raise self.__err(message="Expect expression.")
 

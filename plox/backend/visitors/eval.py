@@ -4,10 +4,10 @@ from plox.frontend.tokens import TokenType as TT, Token
 from plox.frontend.ast import (
     ExprVisitor,
     Expr,
-    Literal,
-    Grouping,
-    Unary,
-    Binary,
+    LiteralExpr,
+    GroupingExpr,
+    UnaryExpr,
+    BinaryExpr,
 )
 
 
@@ -21,13 +21,13 @@ class Eval(ExprVisitor[Any]):
     def eval(self, expr: Expr) -> Any:
         return expr.accept(visitor=self)
 
-    def visitLiteralExpr(self, expr: Literal) -> Any:
+    def visitLiteralExpr(self, expr: LiteralExpr) -> Any:
         return expr.value
 
-    def visitGroupingExpr(self, expr: Grouping) -> Any:
+    def visitGroupingExpr(self, expr: GroupingExpr) -> Any:
         return self.eval(expr=expr.expression)
 
-    def visitUnaryExpr(self, expr: Unary) -> Any:
+    def visitUnaryExpr(self, expr: UnaryExpr) -> Any:
         right: Any = self.eval(expr=expr.right)
 
         match expr.operator.type:
@@ -39,7 +39,7 @@ class Eval(ExprVisitor[Any]):
 
         return None
 
-    def visitBinaryExpr(self, expr: Binary) -> Any:
+    def visitBinaryExpr(self, expr: BinaryExpr) -> Any:
         left: Any = self.eval(expr.left)
         right: Any = self.eval(expr.right)
 

@@ -19,67 +19,67 @@ class TestParser:
 
         tests: list[ast.Expr] = [
             # 2 - 3 + 4
-            ast.Binary(
-                ast.Binary(
-                    ast.Literal(2),
+            ast.BinaryExpr(
+                ast.BinaryExpr(
+                    ast.LiteralExpr(2),
                     Token(TT.MINUS, "-", None, 1),
-                    ast.Literal(3),
+                    ast.LiteralExpr(3),
                 ),
                 Token(TT.PLUS, "+", None, 1),
-                ast.Literal(4),
+                ast.LiteralExpr(4),
             ),
             # 10 / 2 * 3
-            ast.Binary(
-                ast.Binary(
-                    ast.Literal(10),
+            ast.BinaryExpr(
+                ast.BinaryExpr(
+                    ast.LiteralExpr(10),
                     Token(TT.SLASH, "/", None, 1),
-                    ast.Literal(2),
+                    ast.LiteralExpr(2),
                 ),
                 Token(TT.STAR, "*", None, 1),
-                ast.Literal(3),
+                ast.LiteralExpr(3),
             ),
             # 5 > 3
-            ast.Binary(
-                ast.Literal(5),
+            ast.BinaryExpr(
+                ast.LiteralExpr(5),
                 Token(TT.GT, ">", None, 1),
-                ast.Literal(3),
+                ast.LiteralExpr(3),
             ),
             # (1 + 2) * 3
-            ast.Binary(
-                ast.Grouping(
-                    ast.Binary(
-                        ast.Literal(1),
+            ast.BinaryExpr(
+                ast.GroupingExpr(
+                    ast.BinaryExpr(
+                        ast.LiteralExpr(1),
                         Token(TT.PLUS, "+", None, 1),
-                        ast.Literal(2),
+                        ast.LiteralExpr(2),
                     )
                 ),
                 Token(TT.STAR, "*", None, 1),
-                ast.Literal(3),
+                ast.LiteralExpr(3),
             ),
             # -4 + 5
-            ast.Binary(
-                ast.Unary(
+            ast.BinaryExpr(
+                ast.UnaryExpr(
                     Token(TT.MINUS, "-", None, 1),
-                    ast.Literal(4),
+                    ast.LiteralExpr(4),
                 ),
                 Token(TT.PLUS, "+", None, 1),
-                ast.Literal(5),
+                ast.LiteralExpr(5),
             ),
             # 3 <= 2
-            ast.Binary(
-                ast.Literal(3),
+            ast.BinaryExpr(
+                ast.LiteralExpr(3),
                 Token(TT.LTE, "<=", None, 1),
-                ast.Literal(2),
+                ast.LiteralExpr(2),
             ),
-            ast.Binary(
-                ast.Literal("hello"),
+            ast.BinaryExpr(
+                ast.LiteralExpr("hello"),
                 Token(TT.EQ_EQ, "==", None, 1),
-                ast.Literal("world"),
+                ast.LiteralExpr("world"),
             ),
-            ast.Binary(
-                ast.Literal(None),
+            ast.BinaryExpr(
+                ast.LiteralExpr(None),
                 Token(TT.EQ_EQ, "==", None, 1),
-                ast.Literal(32),
+                ast.LiteralExpr(32),
             ),
         ]
 
