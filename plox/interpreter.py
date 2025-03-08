@@ -66,7 +66,7 @@ class Interpreter:
 
         parser: Parser = Parser(tokens=tokens)
         try:
-            expr = parser.parse()
+            stmts = parser.parse()
         except ParseException as e:
             self.__error(token=e.token, message=e.message)
             for err in self.errors:
@@ -75,8 +75,8 @@ class Interpreter:
 
         eval: Eval = Eval()
         try:
-            value: Any = eval.eval(expr)
-            print(eval.stringify(value))
+            for stmt in stmts:
+                eval.execute(stmt=stmt)
         except RuntimeException as e:
             self.__report(
                 line=e.token.line,

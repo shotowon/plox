@@ -2,12 +2,16 @@ from typing import Any
 
 from plox.frontend.tokens import TokenType as TT, Token
 from plox.frontend.ast import (
-    ExprVisitor,
     Expr,
-    LiteralExpr,
     GroupingExpr,
-    UnaryExpr,
     BinaryExpr,
+    LiteralExpr,
+    UnaryExpr,
+    Stmt,
+    ExpressionStmt,
+    PrintStmt,
+    ExprVisitor,
+    StmtVisitor,
 )
 
 
@@ -17,9 +21,14 @@ class RuntimeException(Exception):
         self.message = message
 
 
-class Eval(ExprVisitor[Any]):
+class Eval(ExprVisitor[Any], StmtVisitor[None]):
+    def execute(self, stmt: Stmt) -> None:
+        stmt.accept(self)
+
     def eval(self, expr: Expr) -> Any:
         return expr.accept(visitor=self)
+
+    # ExprVisitor
 
     def visitLiteralExpr(self, expr: LiteralExpr) -> Any:
         return expr.value
@@ -95,6 +104,17 @@ class Eval(ExprVisitor[Any]):
             case TT.BANG_EQ:
                 return not self.__is_eq(left, right)
 
+        return None
+
+    # StmtVisitor
+
+    def visitExpressionStmt(self, stmt: ExpressionStmt) -> None:
+        self.eval(stmt.expression)
+        return None
+
+    def visitPrintStmt(self, stmt: PrintStmt) -> None:
+        value: Any = self.eval(stmt.expression)
+        print(self.stringify(value))
         return None
 
     def __bool_from_any(self, value: Any) -> bool:
