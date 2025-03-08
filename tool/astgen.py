@@ -14,10 +14,22 @@ def main():
         filename = "ast.py"
         basename = "Expr"
 
+        if not output_dir.exists():
+            output_dir.mkdir()
+
+        filepath = output_dir / filename
+        if not filepath.exists():
+            filepath.touch()
+
+        buf = io.StringIO()
+        buf.write("from abc import ABC, abstractmethod\n")
+        buf.write("from typing import Any\n")
+        buf.write("from dataclasses import dataclass\n\n")
+        buf.write("from plox.frontend.tokens import Token\n\n\n")
+
         define_ast(
-            output_dir,
-            filename,
-            basename,
+            buf,
+            "Expr",
             [
                 "Binary   : Expr left, Token operator, Expr right",
                 "Grouping : Expr expression",
@@ -25,28 +37,26 @@ def main():
                 "Unary    : Token operator, Expr right",
             ],
         )
+
+        define_ast(
+            buf,
+            "Stmt",
+            [
+                "Expression   : Expr expression",
+            ],
+        )
+
+        file_contents = black.format_str(buf.getvalue(), mode=black.FileMode())
+        filepath.write_text(file_contents)
     except Exception as e:
         print(e)
 
 
 def define_ast(
-    output_dir: Path,
-    filename: str,
+    buf: io.StringIO,
     basename: str,
     types: list[str],
 ):
-    if not output_dir.exists():
-        output_dir.mkdir()
-
-    filepath = output_dir / filename
-    if not filepath.exists():
-        filepath.touch()
-
-    buf = io.StringIO()
-    buf.write("from abc import ABC, abstractmethod\n")
-    buf.write("from typing import Any\n")
-    buf.write("from dataclasses import dataclass\n\n")
-    buf.write("from plox.frontend.tokens import Token\n\n\n")
 
     buf.write(f"class {basename}(ABC):\n")
     buf.write(f"    @abstractmethod\n")
@@ -66,10 +76,6 @@ def define_ast(
         list(map(lambda clasdef: clasdef[0], expr_defs)),
     )
 
-    file_contents = black.format_str(buf.getvalue(), mode=black.FileMode())
-
-    filepath.write_text(file_contents)
-
 
 def define_type(
     buf: io.TextIOBase,
@@ -78,7 +84,7 @@ def define_type(
     fields: str,
 ) -> None:
     buf.write("@dataclass\n")
-    buf.write(f"class {classname}({basename}):\n")
+    buf.write(f"class {classname}{basename}({basename}):\n")
     for field in map(lambda s: s.strip(), fields.split(",")):
         field_type, field_name = field.split()
         buf.write(f"    {field_name}: {field_type}")
@@ -104,7 +110,7 @@ def define_visitor(
         buf.write(f"    @abstractmethod\n")
         buf.write(f"    def ")
         buf.write(f"visit{classname}{basename}")
-        buf.write(f"(self, {basename.lower()}: {classname}) -> R:\n")
+        buf.write(f"(self, {basename.lower()}: {classname}{basename}) -> R:\n")
         buf.write(f"        pass\n\n")
 
 
