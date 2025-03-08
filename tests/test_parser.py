@@ -7,14 +7,14 @@ from plox.frontend import ast
 class TestParser:
     def test_exprs(self) -> None:
         srcs: list[str] = [
-            "2 - 3 + 4",
-            "10 / 2 * 3",
-            "5 > 3",
-            "(1 + 2) * 3",
-            "-4 + 5",
-            "3 <= 2",
-            '"hello" == "world"',
-            "nil == 32",
+            "2 - 3 + 4;",
+            "10 / 2 * 3;",
+            "5 > 3;",
+            "(1 + 2) * 3;",
+            "-4 + 5;",
+            "3 <= 2;",
+            '"hello" == "world";',
+            "nil == 32;",
         ]
 
         tests: list[ast.Expr] = [
@@ -87,5 +87,10 @@ class TestParser:
             tokens = [token for token in Scanner(src)]
             parser: Parser = Parser(tokens=tokens)
 
-            got: ast.Expr = parser.parse()
-            assert got == expected
+            stmts: list[ast.Stmt] = parser.parse()
+            assert len(stmts) == 1
+            got = stmts[0]
+            assert (
+                isinstance(got, ast.ExpressionStmt)
+                and got.expression == expected
+            )
