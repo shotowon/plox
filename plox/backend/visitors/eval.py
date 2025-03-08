@@ -3,6 +3,7 @@ from typing import Any
 from plox.frontend.tokens import TokenType as TT, Token
 from plox.frontend.ast import (
     Expr,
+    AssignExpr,
     GroupingExpr,
     BinaryExpr,
     LiteralExpr,
@@ -34,6 +35,13 @@ class Context:
             )
         return self.values[name.lexeme]
 
+    def assign(self, name: Token, value: Any) -> None:
+        if name.lexeme in self.values:
+            self.values[name.lexeme] = value
+            return
+
+        raise RuntimeException(name, f"Undefined variable '{name.lexeme}'.")
+
     def define(self, name: str, value: Any) -> None:
         self.values[name] = value
 
@@ -49,6 +57,11 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
         return expr.accept(visitor=self)
 
     # ExprVisitor
+
+    def visitAssignExpr(self, expr: AssignExpr) -> Any:
+        value: Any = self.eval(expr.value)
+        self.ctx.assign(expr.name, value)
+        return value
 
     def visitLiteralExpr(self, expr: LiteralExpr) -> Any:
         return expr.value
