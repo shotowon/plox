@@ -5,6 +5,9 @@ from plox.frontend.ast import (
     LiteralExpr,
     UnaryExpr,
     BinaryExpr,
+    Stmt,
+    ExpressionStmt,
+    PrintStmt,
 )
 
 
@@ -23,8 +26,26 @@ class Parser:
         self.__tokens = tokens
         self.__current = 0
 
-    def parse(self) -> Expr:
-        return self.__expr()
+    def parse(self) -> list[Stmt]:
+        stmts: list[Stmt] = []
+        while not self.__is_at_end():
+            stmts.append(self.__stmt())
+        return stmts
+
+    def __stmt(self) -> Stmt:
+        if self.__match(TT.PRINT):
+            return self.__print_stmt()
+        return self.__expr_stmt()
+
+    def __print_stmt(self) -> PrintStmt:
+        expr: Expr = self.__expr()
+        self.__consume(TT.SEMICOLON, "Expect ';' after print value")
+        return PrintStmt(expr)
+
+    def __expr_stmt(self) -> ExpressionStmt:
+        expr: Expr = self.__expr()
+        self.__consume(TT.SEMICOLON, "Expect ';' after expr")
+        return ExpressionStmt(expr)
 
     def __expr(self) -> Expr:
         return self.__eq()
