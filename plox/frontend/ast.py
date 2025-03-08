@@ -30,6 +30,15 @@ class GroupingExpr(Expr):
 
 
 @dataclass
+class UnaryExpr(Expr):
+    operator: Token
+    right: Expr
+
+    def accept[T](self, visitor: "ExprVisitor[T]") -> T:
+        return visitor.visitUnaryExpr(self)
+
+
+@dataclass
 class LiteralExpr(Expr):
     value: Any = None
 
@@ -38,12 +47,11 @@ class LiteralExpr(Expr):
 
 
 @dataclass
-class UnaryExpr(Expr):
-    operator: Token
-    right: Expr
+class VariableExpr(Expr):
+    name: Token
 
     def accept[T](self, visitor: "ExprVisitor[T]") -> T:
-        return visitor.visitUnaryExpr(self)
+        return visitor.visitVariableExpr(self)
 
 
 class ExprVisitor[R](ABC):
@@ -56,11 +64,15 @@ class ExprVisitor[R](ABC):
         pass
 
     @abstractmethod
+    def visitUnaryExpr(self, expr: UnaryExpr) -> R:
+        pass
+
+    @abstractmethod
     def visitLiteralExpr(self, expr: LiteralExpr) -> R:
         pass
 
     @abstractmethod
-    def visitUnaryExpr(self, expr: UnaryExpr) -> R:
+    def visitVariableExpr(self, expr: VariableExpr) -> R:
         pass
 
 
@@ -86,6 +98,15 @@ class PrintStmt(Stmt):
         return visitor.visitPrintStmt(self)
 
 
+@dataclass
+class VarStmt(Stmt):
+    name: Token
+    initializer: Expr
+
+    def accept[T](self, visitor: "StmtVisitor[T]") -> T:
+        return visitor.visitVarStmt(self)
+
+
 class StmtVisitor[R](ABC):
     @abstractmethod
     def visitExpressionStmt(self, stmt: ExpressionStmt) -> R:
@@ -93,4 +114,8 @@ class StmtVisitor[R](ABC):
 
     @abstractmethod
     def visitPrintStmt(self, stmt: PrintStmt) -> R:
+        pass
+
+    @abstractmethod
+    def visitVarStmt(self, stmt: VarStmt) -> R:
         pass

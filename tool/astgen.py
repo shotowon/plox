@@ -32,8 +32,9 @@ def main():
             [
                 "Binary   : Expr left, Token operator, Expr right",
                 "Grouping : Expr expression",
-                "Literal  : Any value",
                 "Unary    : Token operator, Expr right",
+                "Literal  : Any value",
+                "Variable : Token name",
             ],
         )
 
@@ -42,7 +43,8 @@ def main():
             "Stmt",
             [
                 "Expression   : Expr expression",
-                "Print   : Expr expression",
+                "Print        : Expr expression",
+                "Var          : Token name, Expr initializer",
             ],
         )
 
