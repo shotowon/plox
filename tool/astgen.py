@@ -12,7 +12,6 @@ def main():
     try:
         output_dir = Path("plox/frontend")
         filename = "ast.py"
-        basename = "Expr"
 
         if not output_dir.exists():
             output_dir.mkdir()
@@ -43,6 +42,7 @@ def main():
             "Stmt",
             [
                 "Expression   : Expr expression",
+                "Print   : Expr expression",
             ],
         )
 

@@ -78,7 +78,19 @@ class ExpressionStmt(Stmt):
         return visitor.visitExpressionStmt(self)
 
 
+@dataclass
+class PrintStmt(Stmt):
+    expression: Expr
+
+    def accept[T](self, visitor: "StmtVisitor[T]") -> T:
+        return visitor.visitPrintStmt(self)
+
+
 class StmtVisitor[R](ABC):
     @abstractmethod
     def visitExpressionStmt(self, stmt: ExpressionStmt) -> R:
+        pass
+
+    @abstractmethod
+    def visitPrintStmt(self, stmt: PrintStmt) -> R:
         pass
