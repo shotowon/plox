@@ -8,6 +8,8 @@ from plox.frontend.ast import (
     Stmt,
     ExpressionStmt,
     PrintStmt,
+    VarStmt,
+    VariableExpr,
 )
 
 
@@ -29,8 +31,30 @@ class Parser:
     def parse(self) -> list[Stmt]:
         stmts: list[Stmt] = []
         while not self.__is_at_end():
-            stmts.append(self.__stmt())
+            decl_or_stmt: Stmt | None = self.__decl()
+            if decl_or_stmt is not None:
+                stmts.append(decl_or_stmt)
         return stmts
+
+    def __decl(self) -> Stmt | None:
+        try:
+            if self.__match(TT.VAR):
+                return self.__var_decl()
+            return self.__stmt()
+        except ParseException as e:
+            self.__sync()
+
+    def __var_decl(self) -> VarStmt:
+        name: Token = self.__consume(TT.IDENTIFIER, "Expect variable name.")
+
+        initializer: Expr = LiteralExpr()
+        if self.__match(TT.EQ):
+            initializer = self.__expr()
+        self.__consume(
+            TT.SEMICOLON,
+            "Expect ';' after variable declaration.",
+        )
+        return VarStmt(name=name, initializer=initializer)
 
     def __stmt(self) -> Stmt:
         if self.__match(TT.PRINT):
@@ -39,12 +63,12 @@ class Parser:
 
     def __print_stmt(self) -> PrintStmt:
         expr: Expr = self.__expr()
-        self.__consume(TT.SEMICOLON, "Expect ';' after print value")
+        self.__consume(TT.SEMICOLON, "Expect ';' after print value.")
         return PrintStmt(expr)
 
     def __expr_stmt(self) -> ExpressionStmt:
         expr: Expr = self.__expr()
-        self.__consume(TT.SEMICOLON, "Expect ';' after expr")
+        self.__consume(TT.SEMICOLON, "Expect ';' after expr.")
         return ExpressionStmt(expr)
 
     def __expr(self) -> Expr:
@@ -110,6 +134,9 @@ class Parser:
             return LiteralExpr(None)
         if self.__match(TT.NUMBER, TT.STRING):
             return LiteralExpr(self.__previous().literal)
+
+        if self.__match(TT.IDENTIFIER):
+            return VariableExpr(self.__previous())
 
         if self.__match(TT.LPAREN):
             expr: Expr = self.__expr()
