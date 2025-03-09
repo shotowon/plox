@@ -96,6 +96,14 @@ class Stmt(ABC):
 
 
 @dataclass
+class BlockStmt(Stmt):
+    statements: list[Stmt]
+
+    def accept[T](self, visitor: "StmtVisitor[T]") -> T:
+        return visitor.visitBlockStmt(self)
+
+
+@dataclass
 class ExpressionStmt(Stmt):
     expression: Expr
 
@@ -121,6 +129,10 @@ class VarStmt(Stmt):
 
 
 class StmtVisitor[R](ABC):
+    @abstractmethod
+    def visitBlockStmt(self, stmt: BlockStmt) -> R:
+        pass
+
     @abstractmethod
     def visitExpressionStmt(self, stmt: ExpressionStmt) -> R:
         pass
