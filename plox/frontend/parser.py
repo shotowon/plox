@@ -27,6 +27,7 @@ class ParseException(Exception):
 
 class Parser:
     def __init__(self, tokens: list[Token]) -> None:
+        self.errors: list[ParseException] = []
         self.__tokens = tokens
         self.__current = 0
 
@@ -42,6 +43,7 @@ class Parser:
             self.__tokens.pop()
         self.__tokens.extend(tokens)
         self.__current = 0
+        self.errors = []
 
     def __decl(self) -> Stmt | None:
         try:
@@ -50,6 +52,7 @@ class Parser:
             return self.__stmt()
         except ParseException as e:
             self.__sync()
+            self.errors.append(e)
 
     def __var_decl(self) -> VarStmt:
         name: Token = self.__consume(TT.IDENTIFIER, "Expect variable name.")
