@@ -1,4 +1,5 @@
 from typing import Any, Optional
+import copy
 
 from plox.frontend.tokens import TokenType as TT, Token
 from plox.frontend.ast import (
@@ -13,6 +14,7 @@ from plox.frontend.ast import (
     ExpressionStmt,
     PrintStmt,
     VarStmt,
+    BlockStmt,
     ExprVisitor,
     StmtVisitor,
 )
@@ -170,6 +172,20 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
 
         self.ctx.define(stmt.name.lexeme, value)
         return None
+
+    def visitBlockStmt(self, stmt: BlockStmt) -> None:
+        self.__exec_block(stmt.statements, Context())
+        return None
+
+    def __exec_block(self, stmts: list[Stmt], ctx: Context) -> None:
+        parent: Context = self.ctx
+
+        try:
+            self.ctx = copy.deepcopy(ctx)
+            for stmt in stmts:
+                self.execute(stmt)
+        finally:
+            self.ctx = parent
 
     def __bool_from_any(self, value: Any) -> bool:
         if value is None:
