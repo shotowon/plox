@@ -9,6 +9,7 @@ from plox.frontend.ast import (
     VariableExpr,
     Stmt,
     ExpressionStmt,
+    BlockStmt,
     PrintStmt,
     VarStmt,
 )
@@ -32,8 +33,7 @@ class Parser:
     def parse(self) -> list[Stmt]:
         stmts: list[Stmt] = []
         while not self.__is_at_end():
-            decl_or_stmt: Stmt | None = self.__decl()
-            if decl_or_stmt is not None:
+            if (decl_or_stmt := self.__decl()) is not None:
                 stmts.append(decl_or_stmt)
         return stmts
 
@@ -60,6 +60,8 @@ class Parser:
     def __stmt(self) -> Stmt:
         if self.__match(TT.PRINT):
             return self.__print_stmt()
+        if self.__match(TT.LBRACE):
+            return self.__block_stmt()
         return self.__expr_stmt()
 
     def __print_stmt(self) -> PrintStmt:
@@ -71,6 +73,15 @@ class Parser:
         expr: Expr = self.__expr()
         self.__consume(TT.SEMICOLON, "Expect ';' after expr.")
         return ExpressionStmt(expr)
+
+    def __block_stmt(self) -> BlockStmt:
+        stmts: list[Stmt] = []
+
+        while not self.__check(TT.RBRACE) and not self.__is_at_end():
+            if (decl_or_stmt := self.__decl()) is not None:
+                stmts.append(decl_or_stmt)
+        self.__consume(TT.RBRACE, "Expect '}' after block.")
+        return BlockStmt(stmts)
 
     def __expr(self) -> Expr:
         return self.__assign()
