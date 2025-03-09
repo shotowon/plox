@@ -37,6 +37,12 @@ class Parser:
                 stmts.append(decl_or_stmt)
         return stmts
 
+    def more_tokens(self, tokens: list[Token]) -> None:
+        if len(self.__tokens) != 0:
+            self.__tokens.pop()
+        self.__tokens.extend(tokens)
+        self.__current = 0
+
     def __decl(self) -> Stmt | None:
         try:
             if self.__match(TT.VAR):
