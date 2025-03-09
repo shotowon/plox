@@ -1,5 +1,6 @@
 from pathlib import Path
 from sys import stderr
+import io
 
 from plox.backend.visitors.eval import Eval, RuntimeException, Context
 from plox.frontend.parser import ParseException, Parser
@@ -14,21 +15,72 @@ class Interpreter:
         self.had_errors: bool = False
 
     def run_interactively(self) -> None:
-        print("Enter 'quit' to exit. ^.^")
+        src = io.StringIO()
+        print("Enter '\\quit' to exit. ^.^")
+        print("Enter '\\clean' to clean buffered lines. 0.0")
+        print("Enter '\\lines' to print buffered lines. -_-")
+        print("Enter '\\errors' to print syntactical errors. @~@")
         while True:
-            self.errors = []
             try:
-                line: str = input("> ")
+                line = input("> ")
                 if line.strip() == "":
                     continue
-                if line.strip() == "quit":
-                    break
-                self.__run(line)
-
-                if len(self.errors) != 0:
+                if line.strip() == "\\quit":
                     for err in self.errors:
-                        self.had_errors = True
                         stderr.write(err)
+                    src.seek(0)
+                    src.truncate()
+                    self.errors = []
+                    break
+                if line.strip() == "\\clean":
+                    for err in self.errors:
+                        stderr.write(err)
+                    src.seek(0)
+                    src.truncate()
+                    self.errors = []
+                    continue
+                if line.strip() == "\\lines":
+                    print(src.getvalue())
+                    continue
+                if line.strip() == "\\errors":
+                    for err in self.errors:
+                        stderr.write(err)
+                    continue
+                src.write(line)
+
+                scanner: Scanner = Scanner(source=src.getvalue())
+                tokens: list[Token] = []
+                for token in scanner:
+                    if token.type == TokenType.INVALID:
+                        self.__error(token, token.meta)
+                        continue
+                    tokens.append(token)
+
+                parser: Parser = Parser(tokens=tokens)
+                stmts = parser.parse()
+                if len(parser.errors) != 0:
+                    self.errors = []
+                    for err in parser.errors:
+                        self.__error(token=err.token, message=err.message)
+                    src.write("\n")
+                    continue
+
+                try:
+                    eval: Eval = Eval(self.ctx)
+                    for stmt in stmts:
+                        eval.execute(stmt=stmt)
+                except RuntimeException as e:
+                    self.__report(
+                        line=e.token.line,
+                        where=f"at '{e.token.lexeme}'",
+                        message=e.message,
+                    )
+                    for err in self.errors:
+                        stderr.write(err)
+                finally:
+                    src.seek(0)
+                    src.truncate()
+                    self.errors = []
             except EOFError:
                 print("\nEnd of input. Exiting...")
                 break
@@ -65,10 +117,10 @@ class Interpreter:
             tokens.append(token)
 
         parser: Parser = Parser(tokens=tokens)
-        try:
-            stmts = parser.parse()
-        except ParseException as e:
-            self.__error(token=e.token, message=e.message)
+        stmts = parser.parse()
+        if len(parser.errors) != 0:
+            for err in parser.errors:
+                self.__error(token=err.token, message=err.message)
             for err in self.errors:
                 stderr.write(err)
             return
