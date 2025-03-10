@@ -112,6 +112,16 @@ class ExpressionStmt(Stmt):
 
 
 @dataclass
+class IfStmt(Stmt):
+    condition: Expr
+    thenBranch: Stmt
+    elseBranch: Stmt
+
+    def accept[T](self, visitor: "StmtVisitor[T]") -> T:
+        return visitor.visitIfStmt(self)
+
+
+@dataclass
 class PrintStmt(Stmt):
     expression: Expr
 
@@ -135,6 +145,10 @@ class StmtVisitor[R](ABC):
 
     @abstractmethod
     def visitExpressionStmt(self, stmt: ExpressionStmt) -> R:
+        pass
+
+    @abstractmethod
+    def visitIfStmt(self, stmt: IfStmt) -> R:
         pass
 
     @abstractmethod
