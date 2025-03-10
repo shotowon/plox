@@ -4,6 +4,7 @@ from plox.frontend.ast import (
     AssignExpr,
     GroupingExpr,
     LiteralExpr,
+    LogicalExpr,
     UnaryExpr,
     BinaryExpr,
     VariableExpr,
@@ -115,7 +116,7 @@ class Parser:
         return self.__assign()
 
     def __assign(self) -> Expr:
-        expr: Expr = self.__eq()
+        expr: Expr = self.__or()
 
         if self.__match(TT.EQ):
             value: Expr = self.__assign()
@@ -125,6 +126,25 @@ class Parser:
                 return AssignExpr(name, value)
 
             self.__err("Invalid assignment target.")
+        return expr
+
+    def __or(self) -> Expr:
+        expr: Expr = self.__and()
+
+        while self.__match(TT.OR):
+            op: Token = self.__previous()
+            right: Expr = self.__and()
+            expr = LogicalExpr(left=expr, operator=op, right=right)
+
+        return expr
+
+    def __and(self) -> Expr:
+        expr: Expr = self.__eq()
+
+        while self.__match(TT.AND):
+            op: Token = self.__previous()
+            right: Expr = self.__eq()
+            expr = LogicalExpr(left=expr, operator=op, right=right)
         return expr
 
     def __eq(self) -> Expr:
