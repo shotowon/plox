@@ -14,6 +14,7 @@ from plox.frontend.ast import (
     Stmt,
     ExpressionStmt,
     IfStmt,
+    WhileStmt,
     PrintStmt,
     VarStmt,
     BlockStmt,
@@ -180,6 +181,11 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
         elif stmt.elseBranch != ExpressionStmt(LiteralExpr(None)):
             return self.execute(stmt.elseBranch)
 
+    def visitWhileStmt(self, stmt: WhileStmt) -> None:
+        while self.__bool_from_any(self.eval(stmt.condition)):
+            self.execute(stmt.body)
+        return None
+
     def visitPrintStmt(self, stmt: PrintStmt) -> None:
         value: Any = self.eval(stmt.expression)
         print(self.stringify(value))
@@ -201,8 +207,6 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
         self.ctx.parent = copy.deepcopy(self.ctx)
         self.ctx.values = {}
 
-        try:
-            self.ctx = copy.deepcopy(ctx)
         for stmt in stmts:
             self.execute(stmt)
         self.ctx.values = self.ctx.parent.values
