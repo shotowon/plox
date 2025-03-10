@@ -9,6 +9,7 @@ from plox.frontend.ast import (
     VariableExpr,
     Stmt,
     ExpressionStmt,
+    IfStmt,
     BlockStmt,
     PrintStmt,
     VarStmt,
@@ -67,6 +68,8 @@ class Parser:
         return VarStmt(name=name, initializer=initializer)
 
     def __stmt(self) -> Stmt:
+        if self.__match(TT.IF):
+            return self.__if_stmt()
         if self.__match(TT.PRINT):
             return self.__print_stmt()
         if self.__match(TT.LBRACE):
@@ -77,6 +80,22 @@ class Parser:
         expr: Expr = self.__expr()
         self.__consume(TT.SEMICOLON, "Expect ';' after print value.")
         return PrintStmt(expr)
+
+    def __if_stmt(self) -> IfStmt:
+        self.__consume(TT.LPAREN, "Expect '(' after 'if'.")
+        condition: Expr = self.__expr()
+        self.__consume(TT.RPAREN, "Expect ')' after condition in 'if'.")
+        thenStmt: Stmt = self.__stmt()
+
+        elseBranch = ExpressionStmt(LiteralExpr(None))
+        if self.__match(TT.ELSE):
+            elseBranch = self.__stmt()
+
+        return IfStmt(
+            condition=condition,
+            thenBranch=thenStmt,
+            elseBranch=elseBranch,
+        )
 
     def __expr_stmt(self) -> ExpressionStmt:
         expr: Expr = self.__expr()
