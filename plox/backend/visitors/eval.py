@@ -12,6 +12,7 @@ from plox.frontend.ast import (
     VariableExpr,
     Stmt,
     ExpressionStmt,
+    IfStmt,
     PrintStmt,
     VarStmt,
     BlockStmt,
@@ -159,6 +160,12 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
     def visitExpressionStmt(self, stmt: ExpressionStmt) -> None:
         self.eval(stmt.expression)
         return None
+
+    def visitIfStmt(self, stmt: IfStmt) -> None:
+        if self.__bool_from_any(self.eval(stmt.condition)):
+            return self.execute(stmt.thenBranch)
+        elif stmt.elseBranch != ExpressionStmt(LiteralExpr(None)):
+            return self.execute(stmt.elseBranch)
 
     def visitPrintStmt(self, stmt: PrintStmt) -> None:
         value: Any = self.eval(stmt.expression)
