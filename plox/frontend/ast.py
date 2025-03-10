@@ -152,6 +152,15 @@ class VarStmt(Stmt):
         return visitor.visitVarStmt(self)
 
 
+@dataclass
+class WhileStmt(Stmt):
+    condition: Expr
+    body: Stmt
+
+    def accept[T](self, visitor: "StmtVisitor[T]") -> T:
+        return visitor.visitWhileStmt(self)
+
+
 class StmtVisitor[R](ABC):
     @abstractmethod
     def visitBlockStmt(self, stmt: BlockStmt) -> R:
@@ -171,4 +180,8 @@ class StmtVisitor[R](ABC):
 
     @abstractmethod
     def visitVarStmt(self, stmt: VarStmt) -> R:
+        pass
+
+    @abstractmethod
+    def visitWhileStmt(self, stmt: WhileStmt) -> R:
         pass
