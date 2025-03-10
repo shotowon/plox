@@ -11,6 +11,7 @@ from plox.frontend.ast import (
     Stmt,
     ExpressionStmt,
     IfStmt,
+    WhileStmt,
     BlockStmt,
     PrintStmt,
     VarStmt,
@@ -71,6 +72,8 @@ class Parser:
     def __stmt(self) -> Stmt:
         if self.__match(TT.IF):
             return self.__if_stmt()
+        if self.__match(TT.WHILE):
+            return self.__while_stmt()
         if self.__match(TT.PRINT):
             return self.__print_stmt()
         if self.__match(TT.LBRACE):
@@ -81,6 +84,13 @@ class Parser:
         expr: Expr = self.__expr()
         self.__consume(TT.SEMICOLON, "Expect ';' after print value.")
         return PrintStmt(expr)
+
+    def __while_stmt(self) -> Stmt:
+        self.__consume(TT.LPAREN, "Expect '(' after 'while'.")
+        condition: Expr = self.__expr()
+        self.__consume(TT.RPAREN, "Expect ')' after condition in 'while'.")
+        body: Stmt = self.__stmt()
+        return WhileStmt(condition=condition, body=body)
 
     def __if_stmt(self) -> Stmt:
         self.__consume(TT.LPAREN, "Expect '(' after 'if'.")
