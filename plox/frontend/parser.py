@@ -55,7 +55,7 @@ class Parser:
             self.__sync()
             self.errors.append(e)
 
-    def __var_decl(self) -> VarStmt:
+    def __var_decl(self) -> Stmt:
         name: Token = self.__consume(TT.IDENTIFIER, "Expect variable name.")
 
         initializer: Expr = LiteralExpr()
@@ -76,12 +76,12 @@ class Parser:
             return self.__block_stmt()
         return self.__expr_stmt()
 
-    def __print_stmt(self) -> PrintStmt:
+    def __print_stmt(self) -> Stmt:
         expr: Expr = self.__expr()
         self.__consume(TT.SEMICOLON, "Expect ';' after print value.")
         return PrintStmt(expr)
 
-    def __if_stmt(self) -> IfStmt:
+    def __if_stmt(self) -> Stmt:
         self.__consume(TT.LPAREN, "Expect '(' after 'if'.")
         condition: Expr = self.__expr()
         self.__consume(TT.RPAREN, "Expect ')' after condition in 'if'.")
@@ -97,12 +97,12 @@ class Parser:
             elseBranch=elseBranch,
         )
 
-    def __expr_stmt(self) -> ExpressionStmt:
+    def __expr_stmt(self) -> Stmt:
         expr: Expr = self.__expr()
         self.__consume(TT.SEMICOLON, "Expect ';' after expr.")
         return ExpressionStmt(expr)
 
-    def __block_stmt(self) -> BlockStmt:
+    def __block_stmt(self) -> Stmt:
         stmts: list[Stmt] = []
 
         while not self.__check(TT.RBRACE) and not self.__is_at_end():
