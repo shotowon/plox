@@ -31,6 +31,7 @@ def main():
             "Expr",
             [
                 "Assign   : Token name, Expr value",
+                "Logical  : Expr left, Token operator, Expr right",
                 "Binary   : Expr left, Token operator, Expr right",
                 "Grouping : Expr expression",
                 "Unary    : Token operator, Expr right",
