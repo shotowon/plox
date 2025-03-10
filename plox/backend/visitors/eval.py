@@ -7,6 +7,7 @@ from plox.frontend.ast import (
     AssignExpr,
     GroupingExpr,
     BinaryExpr,
+    LogicalExpr,
     LiteralExpr,
     UnaryExpr,
     VariableExpr,
@@ -93,6 +94,18 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
                 return not self.__bool_from_any(right)
 
         return None
+
+    def visitLogicalExpr(self, expr: LogicalExpr) -> Any:
+        left: Any = self.eval(expr=expr.left)
+
+        if expr.operator.type == TT.OR:
+            if self.__bool_from_any(left):
+                return left
+        elif expr.operator.type == TT.AND:
+            if not self.__bool_from_any(left):
+                return left
+
+        return self.eval(expr=expr.right)
 
     def visitBinaryExpr(self, expr: BinaryExpr) -> Any:
         left: Any = self.eval(expr.left)
