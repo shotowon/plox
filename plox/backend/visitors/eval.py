@@ -51,7 +51,7 @@ class Context:
             return
 
         if self.parent is not None:
-            self.assign(name, value)
+            self.parent.assign(name, value)
             return
 
         raise RuntimeException(name, f"Undefined variable '{name.lexeme}'.")
@@ -194,18 +194,19 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
         return None
 
     def visitBlockStmt(self, stmt: BlockStmt) -> None:
-        self.__exec_block(stmt.statements, Context())
+        self.__exec_block(stmt.statements)
         return None
 
-    def __exec_block(self, stmts: list[Stmt], ctx: Context) -> None:
-        parent: Context = self.ctx
+    def __exec_block(self, stmts: list[Stmt]) -> None:
+        self.ctx.parent = copy.deepcopy(self.ctx)
+        self.ctx.values = {}
 
         try:
             self.ctx = copy.deepcopy(ctx)
-            for stmt in stmts:
-                self.execute(stmt)
-        finally:
-            self.ctx = parent
+        for stmt in stmts:
+            self.execute(stmt)
+        self.ctx.values = self.ctx.parent.values
+        self.ctx.parent = self.ctx.parent.parent
 
     def __bool_from_any(self, value: Any) -> bool:
         if value is None:
