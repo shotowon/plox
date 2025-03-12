@@ -74,6 +74,8 @@ class Parser:
             return self.__if_stmt()
         if self.__match(TT.WHILE):
             return self.__while_stmt()
+        if self.__match(TT.FOR):
+            return self.__for_stmt()
         if self.__match(TT.PRINT):
             return self.__print_stmt()
         if self.__match(TT.LBRACE):
@@ -91,6 +93,49 @@ class Parser:
         self.__consume(TT.RPAREN, "Expect ')' after condition in 'while'.")
         body: Stmt = self.__stmt()
         return WhileStmt(condition=condition, body=body)
+
+    def __for_stmt(self) -> Stmt:
+        self.__consume(TT.LPAREN, "Expect '(' after 'for'.")
+
+        initializer: Stmt
+        if self.__match(TT.SEMICOLON):
+            initializer = ExpressionStmt(LiteralExpr(None))
+        elif self.__match(TT.VAR):
+            initializer = self.__var_decl()
+        else:
+            initializer = self.__expr_stmt()
+
+        condition: Expr = LiteralExpr(True)
+        if not self.__check(TT.SEMICOLON):
+            condition = self.__expr()
+        self.__consume(
+            TT.SEMICOLON, "Expect ';' after loop condition in 'for'."
+        )
+        increment: Expr = LiteralExpr(None)
+        if not self.__check(TT.RPAREN):
+            increment = self.__expr()
+        self.__consume(TT.RPAREN, "Expect ')' after clauses in 'for'.")
+
+        body: Stmt = self.__stmt()
+        if increment != LiteralExpr(None):
+            body = BlockStmt(
+                [
+                    body,
+                    ExpressionStmt(increment),
+                ]
+            )
+
+        body = WhileStmt(condition=condition, body=body)
+
+        if initializer != ExpressionStmt(LiteralExpr(None)):
+            body = BlockStmt(
+                [
+                    initializer,
+                    body,
+                ]
+            )
+
+        return body
 
     def __if_stmt(self) -> Stmt:
         self.__consume(TT.LPAREN, "Expect '(' after 'if'.")
