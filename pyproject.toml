@@ -1,27 +1,15 @@
-[tool.poetry]
+[project]
 name = "plox"
 version = "0.1.0"
-description = ""
-authors = ["shotowon <sanzhar.maratov@proton.me>"]
+description = "Add your description here"
 readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
 
-[tool.poetry.dependencies]
-python = "^3.12"
-
-[tool.black]
-line-length = 79
-
-
-[tool.poetry.group.dev.dependencies]
-black = "^24.10.0"
-
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.3.4"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-unit-tests = "tests:unit_tests"
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+]
+test = [
+    "pytest>=8.3.5",
+]
