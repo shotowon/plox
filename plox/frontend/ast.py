@@ -41,6 +41,16 @@ class BinaryExpr(Expr):
 
 
 @dataclass
+class CallExpr(Expr):
+    callee: Expr
+    paren: Token
+    arguments: list[Expr]
+
+    def accept[T](self, visitor: "ExprVisitor[T]") -> T:
+        return visitor.visitCallExpr(self)
+
+
+@dataclass
 class GroupingExpr(Expr):
     expression: Expr
 
@@ -84,6 +94,10 @@ class ExprVisitor[R](ABC):
 
     @abstractmethod
     def visitBinaryExpr(self, expr: BinaryExpr) -> R:
+        pass
+
+    @abstractmethod
+    def visitCallExpr(self, expr: CallExpr) -> R:
         pass
 
     @abstractmethod

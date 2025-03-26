@@ -33,6 +33,7 @@ def main():
                 "Assign   : Token name, Expr value",
                 "Logical  : Expr left, Token operator, Expr right",
                 "Binary   : Expr left, Token operator, Expr right",
+                "Call     : Expr callee, Token paren, list[Expr] arguments",
                 "Grouping : Expr expression",
                 "Unary    : Token operator, Expr right",
                 "Literal  : Any value",
@@ -67,9 +68,7 @@ def define_ast(
 
     buf.write(f"class {basename}(ABC):\n")
     buf.write(f"    @abstractmethod\n")
-    buf.write(
-        f"    def accept[T](self, visitor: '{basename}Visitor[T]') -> T:\n"
-    )
+    buf.write(f"    def accept[T](self, visitor: '{basename}Visitor[T]') -> T:\n")
     buf.write(f"        pass\n\n")
 
     expr_defs = [list(map(lambda l: l.strip(), t.split(":"))) for t in types]
@@ -99,9 +98,7 @@ def define_type(
             buf.write(" = None")
         buf.write("\n")
 
-    buf.write(
-        f"    def accept[T](self, visitor: '{basename}Visitor[T]') -> T:\n"
-    )
+    buf.write(f"    def accept[T](self, visitor: '{basename}Visitor[T]') -> T:\n")
     buf.write(f"        return visitor.visit{classname}{basename}(self)\n\n")
     buf.write("\n\n")
 
