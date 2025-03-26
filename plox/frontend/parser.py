@@ -6,6 +6,7 @@ from plox.frontend.ast import (
     LiteralExpr,
     LogicalExpr,
     UnaryExpr,
+    CallExpr,
     BinaryExpr,
     VariableExpr,
     Stmt,
@@ -108,9 +109,7 @@ class Parser:
         condition: Expr = LiteralExpr(True)
         if not self.__check(TT.SEMICOLON):
             condition = self.__expr()
-        self.__consume(
-            TT.SEMICOLON, "Expect ';' after loop condition in 'for'."
-        )
+        self.__consume(TT.SEMICOLON, "Expect ';' after loop condition in 'for'.")
         increment: Expr = LiteralExpr(None)
         if not self.__check(TT.RPAREN):
             increment = self.__expr()
@@ -251,7 +250,28 @@ class Parser:
             op: Token = self.__previous()
             right: Expr = self.__unary()
             return UnaryExpr(op, right)
-        return self.__primary()
+        return self.__call()
+
+    def __call(self) -> Expr:
+        expr: Expr = self.__primary()
+        while True:
+            if self.__match(TT.LPAREN):
+                args: list[Expr] = []
+                if not self.__check(TT.RPAREN):
+                    while True:
+                        if len(args) >= 255:
+                            raise self.__err("Can't have more than 255 arguments.")
+                        args.append(self.__expr())
+
+                        if not self.__match(TT.COMMA):
+                            break
+
+                paren: Token = self.__consume(TT.RPAREN, "Expect ')' after arguments.")
+                return CallExpr(callee=expr, paren=paren, arguments=args)
+            else:
+                break
+
+        return expr
 
     def __primary(self) -> Expr:
         if self.__match(TT.FALSE):
@@ -283,20 +303,16 @@ class Parser:
         self.__advance()
 
         while not self.__is_at_end():
-            if (
-                self.__previous().type == TT.SEMICOLON
-                or self.__peek().type
-                in [
-                    TT.CLASS,
-                    TT.FUN,
-                    TT.VAR,
-                    TT.FOR,
-                    TT.IF,
-                    TT.WHILE,
-                    TT.PRINT,
-                    TT.RETURN,
-                ]
-            ):
+            if self.__previous().type == TT.SEMICOLON or self.__peek().type in [
+                TT.CLASS,
+                TT.FUN,
+                TT.VAR,
+                TT.FOR,
+                TT.IF,
+                TT.WHILE,
+                TT.PRINT,
+                TT.RETURN,
+            ]:
                 return
 
             self.__advance()
