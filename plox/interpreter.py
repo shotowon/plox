@@ -2,7 +2,8 @@ from pathlib import Path
 from sys import stderr
 import io
 
-from plox.backend.visitors.eval import Eval, RuntimeException, Context
+from plox.backend.visitors.eval.visitor import Eval
+from plox.backend.visitors.eval.runtime import RuntimeException, Context
 from plox.frontend.parser import ParseException, Parser
 from plox.frontend.scanner import Scanner
 from plox.frontend.tokens import Token, TokenType
