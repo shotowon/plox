@@ -18,6 +18,7 @@ from plox.frontend.ast import (
     WhileStmt,
     PrintStmt,
     VarStmt,
+    FunctionStmt,
     BlockStmt,
     ExprVisitor,
     StmtVisitor,
@@ -161,6 +162,11 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
             value = self.eval(stmt.initializer)
 
         self.ctx.define(stmt.name.lexeme, value)
+        return None
+
+    def visitFunctionStmt(self, stmt: FunctionStmt) -> None:
+        func = LoxFunction(decl=stmt)
+        self.ctx.define(stmt.name.lexeme, func)
         return None
 
     def visitBlockStmt(self, stmt: BlockStmt) -> None:
