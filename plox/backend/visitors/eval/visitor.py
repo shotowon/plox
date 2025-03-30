@@ -25,6 +25,7 @@ from plox.frontend.ast import (
 from plox.backend.visitors.eval.runtime import (
     Context,
     LoxCallable,
+    LoxFunction,
     RuntimeException,
 )
 from plox.backend.visitors.eval.native_funcs import Clock, Sleep
@@ -163,7 +164,7 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
         return None
 
     def visitBlockStmt(self, stmt: BlockStmt) -> None:
-        self.__exec_block(stmt.statements)
+        self.__exec_block(stmt.statements, values={})
         return None
 
     def visitCallExpr(self, expr: CallExpr) -> None:
@@ -182,14 +183,18 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
             )
         return function.call(self, args)
 
-    def __exec_block(self, stmts: list[Stmt]) -> None:
+    def exec_block(self, stmts: list[Stmt], values: dict[str, Any]) -> None:
+        return self.__exec_block(stmts, values)
+
+    def __exec_block(self, stmts: list[Stmt], values: dict[str, Any]) -> None:
         self.ctx.parent = copy.deepcopy(self.ctx)
-        self.ctx.values = {}
+        self.ctx.values = values
 
         for stmt in stmts:
             self.execute(stmt)
+
         self.ctx.values = self.ctx.parent.values
-        self.ctx.parent = self.ctx.parent.parent
+        self.ctx = self.ctx.parent
 
     def __bool_from_any(self, value: Any) -> bool:
         if value is None:
