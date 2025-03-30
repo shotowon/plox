@@ -72,7 +72,12 @@ class LoxFunction(LoxCallable):
             raise RuntimeException(
                 self.__decl.name, "function definition's body must be block statement."
             )
-        eval.exec_block(self.__decl.body.statements, values)
+
+        try:
+            eval.exec_block(self.__decl.body.statements, values)
+        except Return as ret:
+            return ret.value
+
         return None
 
     def arity(self) -> int:
