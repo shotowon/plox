@@ -19,6 +19,7 @@ from plox.frontend.ast import (
     PrintStmt,
     VarStmt,
     FunctionStmt,
+    ReturnStmt,
     BlockStmt,
     ExprVisitor,
     StmtVisitor,
@@ -28,6 +29,7 @@ from plox.backend.visitors.eval.runtime import (
     LoxCallable,
     LoxFunction,
     RuntimeException,
+    Return,
 )
 from plox.backend.visitors.eval.native_funcs import Clock, Sleep
 
@@ -168,6 +170,13 @@ class Eval(ExprVisitor[Any], StmtVisitor[None]):
         func = LoxFunction(decl=stmt)
         self.ctx.define(stmt.name.lexeme, func)
         return None
+
+    def visitReturnStmt(self, stmt: ReturnStmt) -> None:
+        value: Any = None
+        if stmt.value != LiteralExpr(None):
+            value = self.eval(stmt.value)
+
+        raise Return(value)
 
     def visitBlockStmt(self, stmt: BlockStmt) -> None:
         self.__exec_block(stmt.statements, values={})
