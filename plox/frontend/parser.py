@@ -2,7 +2,6 @@ from plox.frontend.tokens import Token, TokenType as TT
 from plox.frontend.ast import (
     Expr,
     AssignExpr,
-    FunctionStmt,
     GroupingExpr,
     LiteralExpr,
     LogicalExpr,
@@ -17,6 +16,8 @@ from plox.frontend.ast import (
     BlockStmt,
     PrintStmt,
     VarStmt,
+    FunctionStmt,
+    ReturnStmt,
 )
 
 
@@ -91,6 +92,15 @@ class Parser:
         )
         return VarStmt(name=name, initializer=initializer)
 
+    def __return_stmt(self) -> Stmt:
+        keyword: Token = self.__previous()
+        value: Expr = LiteralExpr(None)
+        if not self.__check(TT.SEMICOLON):
+            value = self.__expr()
+        self.__consume(TT.SEMICOLON, "Expect ';' after return value.")
+
+        return ReturnStmt(keyword, value)
+
     def __stmt(self) -> Stmt:
         if self.__match(TT.IF):
             return self.__if_stmt()
@@ -100,6 +110,8 @@ class Parser:
             return self.__for_stmt()
         if self.__match(TT.PRINT):
             return self.__print_stmt()
+        if self.__match(TT.RETURN):
+            return self.__return_stmt()
         if self.__match(TT.LBRACE):
             return self.__block_stmt()
         return self.__expr_stmt()
