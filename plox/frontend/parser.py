@@ -2,6 +2,7 @@ from plox.frontend.tokens import Token, TokenType as TT
 from plox.frontend.ast import (
     Expr,
     AssignExpr,
+    FunctionStmt,
     GroupingExpr,
     LiteralExpr,
     LogicalExpr,
@@ -51,12 +52,32 @@ class Parser:
 
     def __decl(self) -> Stmt | None:
         try:
+            if self.__match(TT.FUN):
+                return self.__fun_decl("function")
             if self.__match(TT.VAR):
                 return self.__var_decl()
             return self.__stmt()
         except ParseException as e:
             self.__sync()
             self.errors.append(e)
+
+    def __fun_decl(self, kind: str) -> Stmt:
+        name: Token = self.__consume(TT.IDENTIFIER, f"Expect {kind} name.")
+        self.__consume(TT.LPAREN, f"Expect '(' after {kind} name.")
+
+        params: list[Token] = []
+        if not self.__check(TT.RPAREN):
+            while True:
+                if len(params) >= 255:
+                    raise self.__err("Can't have more than 255 parameters.")
+
+                params.append(self.__consume(TT.IDENTIFIER, "Expect parameter name."))
+                if not self.__match(TT.COMMA):
+                    break
+        self.__consume(TT.RPAREN, "Expect ')' after parameters.")
+        self.__consume(TT.LBRACE, "Expect '{' " + f"before {kind} body.")
+        body: Stmt = self.__block_stmt()
+        return FunctionStmt(name, params, body)
 
     def __var_decl(self) -> Stmt:
         name: Token = self.__consume(TT.IDENTIFIER, "Expect variable name.")
