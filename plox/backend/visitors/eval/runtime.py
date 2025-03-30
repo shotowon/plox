@@ -1,12 +1,16 @@
 from typing import TYPE_CHECKING, Any, Optional
 from abc import ABC, abstractmethod
-import copy
 
 from plox.frontend.ast import BlockStmt, FunctionStmt
 from plox.frontend.tokens import Token
 
 if TYPE_CHECKING:
     from plox.backend.visitors.eval.visitor import Eval
+
+
+class Return(Exception):
+    def __init__(self, value: Any) -> None:
+        self.value = value
 
 
 class Context:
