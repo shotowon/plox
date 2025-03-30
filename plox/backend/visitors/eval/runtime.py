@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING, Any, Optional
 from abc import ABC, abstractmethod
+import copy
 
+from plox.frontend.ast import BlockStmt, FunctionStmt
 from plox.frontend.tokens import Token
 
 if TYPE_CHECKING:
@@ -47,6 +49,30 @@ class LoxCallable(ABC):
     @abstractmethod
     def arity(self) -> int:
         pass
+
+
+class LoxFunction(LoxCallable):
+    def __init__(self, decl: FunctionStmt) -> None:
+        if not isinstance(decl.body, BlockStmt):
+            raise RuntimeException(
+                decl.name, "function definition's body must be block statement."
+            )
+        self.__decl = decl
+
+    def call(self, eval: "Eval", args: list[Any]) -> Any:
+        values: dict[str, Any] = {}
+        for i, param in enumerate(self.__decl.params):
+            values[param.lexeme] = args[i]
+
+        if not isinstance(self.__decl.body, BlockStmt):
+            raise RuntimeException(
+                self.__decl.name, "function definition's body must be block statement."
+            )
+        eval.exec_block(self.__decl.body.statements, values)
+        return None
+
+    def arity(self) -> int:
+        return len(self.__decl.params)
 
 
 class RuntimeException(Exception):
