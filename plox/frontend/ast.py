@@ -150,6 +150,15 @@ class FunctionStmt(Stmt):
 
 
 @dataclass
+class ReturnStmt(Stmt):
+    keyword: Token
+    value: Expr
+
+    def accept[T](self, visitor: "StmtVisitor[T]") -> T:
+        return visitor.visitReturnStmt(self)
+
+
+@dataclass
 class IfStmt(Stmt):
     condition: Expr
     thenBranch: Stmt
@@ -196,6 +205,10 @@ class StmtVisitor[R](ABC):
 
     @abstractmethod
     def visitFunctionStmt(self, stmt: FunctionStmt) -> R:
+        pass
+
+    @abstractmethod
+    def visitReturnStmt(self, stmt: ReturnStmt) -> R:
         pass
 
     @abstractmethod
